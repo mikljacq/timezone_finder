@@ -1,0 +1,18 @@
+name: timezone_finder
+description: Finds the time zone name (according to the IANA time zone database) for any position on Earth given by latitude and longitude coordinates in degrees.
+version: 0.0.1
+# homepage: https://www.example.com
+
+environment:
+  sdk: '>=2.10.0 <3.0.0'
+
+dependencies:
+  geojson: ^0.10.0
+  geopoint: ^0.8.0
+  async: ^2.6.1
+  sqlite3: ^1.1.1
+  archive: ^3.1.2
+
+dev_dependencies:
+  pedantic: ^1.9.0
+  test: ^1.14.4
