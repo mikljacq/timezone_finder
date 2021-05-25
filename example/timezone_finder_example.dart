@@ -13,5 +13,5 @@ void main() async {
 
   print(timeZoneName); // Europe/Madrid
 
-  print(stopwatch.elapsed); // 0:00:04.656824
+  print(stopwatch.elapsed); // 0:00:04.65682
 }

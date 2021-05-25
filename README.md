@@ -9,11 +9,13 @@ The boundaries of the world's time zones used to perform the search have been co
 
 ## Limitations
 
-The limitations are the same as per the [Timezone Boundary Builder][timezone_boundary_builder] project.
+The limitations are the same as the [Timezone Boundary Builder][timezone_boundary_builder] project.
 
 ## Performances
 
-As there is a huge amount of polygons to parse and as the current version does not use a spatial-aware database, it takes between 3 and 5 seconds to find the time zone name.
+The size of the database is about 150 Mo and as there is a huge amount of polygons to parse and as the current version does not use a spatial-aware database, it takes between 3 and 5 seconds to find the time zone name.
+
+At the very first call, it might take more time because the database needs to be decompressed.
 
 ## Usage
 
