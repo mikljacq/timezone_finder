@@ -7,7 +7,7 @@ environment:
   sdk: '>=2.10.0 <3.0.6'
 
 dependencies:
-  geojson: ^0.10.0
+  geojson: ^1.0.0
   geopoint: ^1.0.0
   async: ^2.6.1
   sqlite3: ^1.1.1
