@@ -12,7 +12,7 @@ import 'package:timezone_finder/src/extensions.dart';
 const int _kOffset = 200;
 
 class TimeZoneFinder {
-  final _isolates = <Isolate>[];
+  final _isolates = <Isolate?>[];
 
   void _readZipArchive() {
     final bytes = File('lib/assets/timezones.zip').readAsBytesSync();
@@ -25,12 +25,18 @@ class TimeZoneFinder {
   }
 
   /// Finds the time zone name according to the IANA time zone database, for the given [latitude] and [longitude] in degrees.
-  Future<String> findTimeZoneName(double latitude, double longitude) async {
-    if (latitude > 90 || latitude < -90 || longitude > 180 || longitude < -180) return null;
+  Future<String?> findTimeZoneName(double latitude, double longitude) async {
+    if (latitude > 90 ||
+        latitude < -90 ||
+        longitude > 180 ||
+        longitude < -180) {
+      return null;
+    }
 
     final completer = Completer<String>();
 
-    var geoPoint = GeoJsonPoint(geoPoint: GeoPoint(latitude: latitude, longitude: longitude));
+    var geoPoint = GeoJsonPoint(
+        geoPoint: GeoPoint(latitude: latitude, longitude: longitude));
 
     if (!await File('lib/assets/timezones').exists()) _readZipArchive();
 
@@ -55,12 +61,15 @@ class TimeZoneFinder {
       );
 
     while (resultSet.isNotEmpty) {
-      final message = _IsolateMessage(resultSet, geoPoint, receiverPort.sendPort);
-      _isolates.add(await Isolate.spawn(_isolateProcessResultSet, message, onExit: receiverPort.sendPort));
+      final message =
+          _IsolateMessage(resultSet, geoPoint, receiverPort.sendPort);
+      _isolates.add(await Isolate.spawn(_isolateProcessResultSet, message,
+          onExit: receiverPort.sendPort));
       nbIsolate += 1;
 
       offset += _kOffset;
-      resultSet = db.select('SELECT * FROM timezones LIMIT $_kOffset OFFSET $offset');
+      resultSet =
+          db.select('SELECT * FROM timezones LIMIT $_kOffset OFFSET $offset');
     }
 
     db.dispose();
@@ -81,16 +90,15 @@ class TimeZoneFinder {
 
   void _killIsolates() {
     for (var isolate in _isolates) {
-      if (isolate != null) {
-        isolate.kill(priority: Isolate.immediate);
-        isolate = null;
-      }
+      isolate?.kill(priority: Isolate.immediate);
+      isolate = null;
     }
   }
 
   static void _isolateProcessResultSet(_IsolateMessage message) async {
     final polygons = <GeoJsonFeature<GeoJsonPolygon>>[];
     for (var row in message.resultSet.rows) {
+      row = row as List<String>;
       final feature = GeoJsonFeature<GeoJsonPolygon>();
       feature.type = GeoJsonFeatureType.polygon;
       feature.properties = {'tzid': row[2]};
@@ -104,7 +112,15 @@ class TimeZoneFinder {
         ));
       }
 
-      feature.geometry = GeoJsonPolygon(geoSeries: [GeoSerie(geoPoints: geoPoints)]);
+      feature.geometry = GeoJsonPolygon(
+        geoSeries: List.generate(
+          feature.geometry!.geoSeries.length,
+          (index) {
+            var geoSerie = feature.geometry!.geoSeries[index];
+            return GeoSerie(name: geoSerie.name, type: geoSerie.type);
+          },
+        ),
+      );
 
       polygons.add(feature);
     }
@@ -113,7 +129,7 @@ class TimeZoneFinder {
 
     final result = await geo.geofenceSearch(polygons, message.geoPoint);
     if (result.isNotEmpty) {
-      message.sendPort.send(result.first.properties['tzid']);
+      message.sendPort.send(result.first!.properties!['tzid']);
     }
 
     geo.dispose();

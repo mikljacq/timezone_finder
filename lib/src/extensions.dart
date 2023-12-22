@@ -15,7 +15,7 @@ extension GeoJsonSearchX on GeoJson {
   /// Given a list of polygons, find which one contains a given point.
   ///
   /// If the point isn't within any of these polygons, return `null`.
-  Future<List<GeoJsonFeature<GeoJsonPolygon>>> geofenceSearch(
+  Future<List<GeoJsonFeature<GeoJsonPolygon>?>> geofenceSearch(
     List<GeoJsonFeature<GeoJsonPolygon>> geofences,
     GeoJsonPoint query,
   ) async {
@@ -23,7 +23,8 @@ extension GeoJsonSearchX on GeoJson {
 
     final filteredGeofences = [
       for (var box in boundingBoxes)
-        if (box.contains(query.geoPoint.latitude, query.geoPoint.longitude)) box.feature
+        if (box.contains(query.geoPoint.latitude, query.geoPoint.longitude))
+          box.feature
     ];
 
     return await _geofencesContainingPointNaive(filteredGeofences, query);
@@ -33,14 +34,14 @@ extension GeoJsonSearchX on GeoJson {
   ///
   /// Naive implementation. The geofences should be filtered first using a method such
   /// as searching bounding boxes first.
-  Future<List<GeoJsonFeature<GeoJsonPolygon>>> _geofencesContainingPointNaive(
-    List<GeoJsonFeature<GeoJsonPolygon>> geofences,
+  Future<List<GeoJsonFeature<GeoJsonPolygon>?>> _geofencesContainingPointNaive(
+    List<GeoJsonFeature<GeoJsonPolygon>?> geofences,
     GeoJsonPoint query,
   ) async {
     final futures = [
       for (var geofence in geofences)
         geofencePolygon(
-          polygon: geofence.geometry,
+          polygon: geofence!.geometry!,
           points: [query],
         ).then((results) {
           /// Nothing found
@@ -56,18 +57,19 @@ extension GeoJsonSearchX on GeoJson {
   }
 
   /// Given a set of geofence polygons, find all of their bounding boxes, and the index at which they were found.
-  List<GeoBoundingBox> getBoundingBoxes(List<GeoJsonFeature<GeoJsonPolygon>> geofences) {
+  List<GeoBoundingBox> getBoundingBoxes(
+      List<GeoJsonFeature<GeoJsonPolygon>> geofences) {
     final boundingBoxes = <GeoBoundingBox>[];
 
     for (var i = 0; i <= geofences.length - 1; i++) {
       final geofence = geofences[i];
 
-      double maxLat;
-      double minLat;
-      double maxLong;
-      double minLong;
+      double? maxLat;
+      double? minLat;
+      double? maxLong;
+      double? minLong;
 
-      for (var geoSerie in geofence.geometry.geoSeries) {
+      for (var geoSerie in geofence.geometry!.geoSeries) {
         for (var geoPoint in geoSerie.geoPoints) {
           final lat = geoPoint.latitude;
           final long = geoPoint.longitude;
@@ -88,10 +90,10 @@ extension GeoJsonSearchX on GeoJson {
 
       boundingBoxes.add(GeoBoundingBox(
         feature: geofence,
-        minLat: minLat,
-        maxLong: maxLong,
-        maxLat: maxLat,
-        minLong: minLong,
+        minLat: minLat!,
+        maxLong: maxLong!,
+        maxLat: maxLat!,
+        minLong: minLong!,
       ));
     }
 

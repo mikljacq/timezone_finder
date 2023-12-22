@@ -2,7 +2,7 @@ import 'package:test/test.dart';
 import 'package:timezone_finder/timezone_finder.dart';
 
 void main() {
-  Map<String, Map<String, dynamic>> expectedResults = {
+  var expectedResults = <String, Map<String, dynamic>>{
     'Barcelona': {
       'latitude': 41.387048,
       'longitude': 2.17413425,
@@ -62,8 +62,9 @@ void main() {
       var expected = expectedResults[entry.key];
 
       test('Timezone Name', () async {
-        var tzName = await finder.findTimeZoneName(expected['latitude'], expected['longitude']);
-        expect(tzName, expected['timezone']);
+        var tzName = await finder.findTimeZoneName(
+            expected?['latitude'], expected?['longitude']);
+        expect(tzName, expected?['timezone']);
       });
     });
   }
