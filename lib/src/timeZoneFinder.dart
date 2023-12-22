@@ -14,15 +14,15 @@ const int _kOffset = 200;
 class TimeZoneFinder {
   final _isolates = <Isolate?>[];
 
-  void _readZipArchive() {
-    final bytes = File('lib/assets/timezones.zip').readAsBytesSync();
+  // void _readZipArchive() {
+  //   final bytes = File('lib/assets/timezones.zip').readAsBytesSync();
 
-    // Decode and extract the contents of the Zip archive to disk.
-    final archive = ZipDecoder().decodeBytes(bytes);
-    File('lib/assets/' + archive.fileName(0))
-      ..createSync()
-      ..writeAsBytesSync(archive.fileData(0));
-  }
+  //   // Decode and extract the contents of the Zip archive to disk.
+  //   final archive = ZipDecoder().decodeBytes(bytes);
+  //   File('lib/assets/' + archive.fileName(0))
+  //     ..createSync()
+  //     ..writeAsBytesSync(archive.fileData(0));
+  // }
 
   /// Finds the time zone name according to the IANA time zone database, for the given [latitude] and [longitude] in degrees.
   Future<String?> findTimeZoneName(double latitude, double longitude) async {
@@ -38,7 +38,7 @@ class TimeZoneFinder {
     var geoPoint = GeoJsonPoint(
         geoPoint: GeoPoint(latitude: latitude, longitude: longitude));
 
-    if (!await File('lib/assets/timezones').exists()) _readZipArchive();
+    // if (!await File('lib/assets/timezones').exists()) _readZipArchive();
 
     final db = sqlite3.open('lib/assets/timezones');
     var resultSet = db.select('SELECT * FROM timezones LIMIT $_kOffset');
